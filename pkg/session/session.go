@@ -1,6 +1,7 @@
 package session
 
 import (
+	"runtime/debug"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -31,6 +32,8 @@ func NewSession() *Session {
 // If Session is closed, it will cause a panic if a new cleanup function is registered.
 func (ts *Session) RegisterCleanupFunc(f CleanupFunc) {
 	if ts.open {
+		println(f)
+		debug.PrintStack()
 		ts.cleanupQueue = append(ts.cleanupQueue, f)
 	} else {
 		panic("attempted to register cleanup function to closed test session")
@@ -62,6 +65,7 @@ func (ts *Session) Cleanup() {
 				return true, nil
 			})
 			if err != nil {
+				println(ts.cleanupQueue[i])
 				logrus.Errorf("failed to cleanup resource. Backoff error: %v. Cleanup error: %v", err, cleanupErr)
 			}
 		}
