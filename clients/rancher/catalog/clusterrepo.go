@@ -160,6 +160,16 @@ func (c *Client) GetListChartVersions(chartName, repoName string) ([]string, err
 
 // GetLatestChartVersion is used to get the lastest version of `chartName` from a given `repoName`
 func (c *Client) GetLatestChartVersion(chartName string, repoName string) (string, error) {
+	clusterRepo, err := c.ClusterRepos().Get(context.Background(), repoName, metav1.GetOptions{})
+	if err != nil {
+		return "", err
+	}
+
+	clusterRepo, err = c.ClusterRepos().UpdateStatus(context.Background(), clusterRepo, metav1.UpdateOptions{})
+	if err != nil {
+		return "", err
+	}
+
 	versionsList, err := c.GetListChartVersions(chartName, repoName)
 	if err != nil {
 		return "", err
